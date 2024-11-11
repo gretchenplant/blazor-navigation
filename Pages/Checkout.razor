@@ -4,13 +4,18 @@
 @inject NavigationManager NavigationManager
 
 <div class="top-bar">
-    <a class="logo" href="">
+    <a class="logo" href="/">
         <img src="img/logo.svg" />
     </a>
 
-    <a href="" class="nav-tab">
+    <a href="/" class="nav-tab active" >
         <img src="img/pizza-slice.svg" />
         <div>Get Pizza</div>
+    </a>
+
+    <a href="myorders" class="nav-tab" >
+        <img src="img/bike.svg" />
+        <div>My orders</div>
     </a>
 
 </div>
@@ -19,7 +24,7 @@
     <div class="checkout-cols">
         <div class="checkout-order-details">
             <h4>Review order</h4>
-            @foreach (var pizza in Order.Pizzas)
+            @foreach (var pizza in order.Pizzas)
             {
                 <p>
                     <strong>
@@ -33,27 +38,28 @@
             <p>
                 <strong>
                     Total price:
-                    £@Order.GetFormattedTotalPrice()
+                    £@order.GetFormattedTotalPrice()
                 </strong>
             </p>
         </div>
     </div>
 
-    <button class="checkout-button btn btn-warning" @onclick="PlaceOrder" disabled=@isSubmitting>
-  Place order
+    <button class="checkout-button btn btn-warning" @onclick="PlaceOrder" disabled="@isSubmitting">
+    Place order
 </button>
+
 </div>
 
 @code {
-    Order Order => OrderState.Order;
+    Order order => OrderState.Order;
     bool isSubmitting;
 
-async Task PlaceOrder()
-{
-    isSubmitting = true;
-    var response = await HttpClient.PostAsJsonAsync(NavigationManager.BaseUri + "orders", OrderState.Order);
-    var newOrderId= await response.Content.ReadFromJsonAsync<int>();
-    OrderState.ResetOrder();
-    NavigationManager.NavigateTo("/");
-}
+    async Task PlaceOrder()
+    {
+        isSubmitting = true;
+        var response = await HttpClient.PostAsJsonAsync($"{NavigationManager.BaseUri}orders", OrderState.Order);
+        var newOrderId = await response.Content.ReadFromJsonAsync<int>();
+        OrderState.ResetOrder();
+        NavigationManager.NavigateTo("/myorders");
+    }
 }
